@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>Disc Golf Soundboard</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root {
+  --blue: #1d6fa8;
+  --blue-dark: #155882;
+  --blue-tint: #e6f1f9;
+  --ink: #0a0a0a;
+  --pos: #168a45;
+  --pos-tint: #e8f5ed;
+  --neg: #c62828;
+  --neg-tint: #fbeaea;
+  --bg: #f4f6f8;
+  --card: #ffffff;
+  --line: #d9dfe5;
+  --muted: #6b7680;
+  --focus: rgb(29 111 168 / 40%);
+}
+/* 1rem = 4 units. Root scales with the screen width, capped on wide screens. */
+html { font-size: max(1vw, 25%); }
+@media (min-width: 30em) { html { font-size: 30%; } }
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; }
+body {
+  font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 4rem;
+  background: var(--bg);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Header */
+.top {
+  background: var(--ink);
+  color: #fff;
+  padding: calc(env(safe-area-inset-top) + 4rem) 5rem 5rem;
+  display: flex;
+  align-items: center;
+  gap: 4rem;
+  box-shadow: 0 1rem 4rem rgb(0 0 0 / 25%);
+  position: relative;
+  z-index: 2;
+}
+.top svg { width: 10rem; height: 10rem; flex: none; }
+.top h1 { margin: 0; font-size: 5rem; line-height: 110%; font-weight: 800; text-transform: uppercase; }
+.top p { margin: 1rem 0 0; font-size: 3rem; color: #9fb4c4; text-transform: uppercase; }
+
+/* Update banner */
+.update {
+  display: none;
+  background: var(--blue-tint);
+  border-bottom: thin solid #bcd8ec;
+  padding: 3rem 5rem;
+  font-size: 4rem;
+}
+.update.show { display: block; }
+.update strong { display: block; margin-bottom: 1rem; color: var(--blue-dark); }
+.update ul { margin: 0 0 3rem; padding-left: 5rem; color: #223344; }
+.update button {
+  font: inherit; font-weight: 700; color: #fff; background: var(--blue);
+  border: 0; border-radius: 100vmax; padding: 3rem 5rem; min-height: 11rem;
+}
+
+/* Layout */
+main {
+  flex: 1;
+  width: 100%;
+  max-width: 120rem;
+  margin: 0 auto;
+  padding: 5rem 4rem calc(env(safe-area-inset-bottom) + 3rem);
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+}
+.card {
+  background: var(--card);
+  border-radius: 5rem;
+  padding: 5rem 4rem 4rem;
+  box-shadow: 0 1rem 1rem rgb(10 10 10 / 6%), 0 2rem 5rem rgb(10 10 10 / 8%);
+  border-top: 1rem solid var(--blue);
+  display: flex;
+  flex-direction: column;
+  gap: 5rem;
+}
+
+/* Dropdown */
+.dd { position: relative; }
+.dd-label {
+  display: inline-block;
+  font-size: 4rem; font-weight: 800; text-transform: uppercase;
+  color: var(--blue-dark); background: var(--blue-tint);
+  padding: 1rem 3rem; border-radius: 100vmax; margin-bottom: 2rem;
+}
+.dd-btn {
+  width: 100%; min-height: 14rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 3rem;
+  font: inherit; font-size: 4rem; font-weight: 600; text-align: left;
+  color: var(--muted); background: #fff;
+  border: medium solid var(--line); border-radius: 4rem; padding: 0 4rem;
+  box-shadow: 0 1rem 1rem rgb(10 10 10 / 5%);
+}
+.dd-btn .val { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dd-btn.has { font-weight: 700; }
+.dd-btn .chev { flex: none; width: 3rem; height: 3rem; margin-top: -1rem; border-right: medium solid var(--blue); border-bottom: medium solid var(--blue); transform: rotate(45deg); transition: transform 200ms, margin 200ms; }
+.dd.open .dd-btn { border-color: var(--blue); box-shadow: 0 0 0 1rem var(--focus); }
+.dd.open .chev { transform: rotate(-135deg); margin-top: 1rem; }
+.dd-btn:focus-visible { outline: medium solid var(--focus); outline-offset: 1rem; }
+
+.dd-list {
+  display: none;
+  margin-top: 2rem;
+  max-height: 46dvh; overflow-y: auto; overscroll-behavior: contain;
+  background: #fff; border: thin solid var(--line); border-radius: 4rem;
+  box-shadow: 0 2rem 6rem rgb(10 10 10 / 14%);
+}
+.dd.open .dd-list { display: block; }
+.sec-head {
+  position: sticky; top: 0; z-index: 1;
+  padding: 3rem 4rem 2rem; font-size: 3rem; font-weight: 800; text-transform: uppercase;
+  border-bottom: thin solid var(--line);
+}
+.sec-head.pos { color: var(--pos); background: var(--pos-tint); }
+.sec-head.neg { color: var(--neg); background: var(--neg-tint); }
+.opt {
+  display: block; width: 100%; min-height: 13rem; text-align: left;
+  font: inherit; font-size: 4rem; font-weight: 600;
+  background: #fff; border: 0; border-bottom: thin solid #eef1f4; padding: 0 4rem;
+}
+.opt:last-child { border-bottom: 0; }
+.opt.pos { color: var(--pos); }
+.opt.neg { color: var(--neg); }
+.opt.all { color: var(--ink); }
+.opt:active { background: var(--bg); }
+.opt[aria-selected="true"] { background: var(--bg); box-shadow: inset 1rem 0 0 currentColor; }
+.empty { padding: 4rem; font-size: 4rem; color: var(--muted); }
+
+/* Buttons */
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+.btn {
+  min-height: 14rem; border-radius: 100vmax; font: inherit; font-size: 4rem; font-weight: 800;
+  text-transform: uppercase; cursor: pointer;
+  transition: transform 80ms, box-shadow 80ms, opacity 150ms;
+}
+.btn:active:not(:disabled) { transform: translateY(1rem); box-shadow: 0 0 0 transparent; }
+.btn.reset { background: #fff; color: var(--ink); border: medium solid var(--ink); box-shadow: 0 1rem 0 rgb(10 10 10 / 12%); }
+.btn.play { background: var(--blue); color: #fff; border: medium solid var(--blue); box-shadow: 0 1rem 0 var(--blue-dark), 0 2rem 4rem rgb(29 111 168 / 30%); }
+.btn:disabled { opacity: 40%; box-shadow: none; }
+.btn:focus-visible { outline: medium solid var(--focus); outline-offset: 1rem; }
+
+footer { text-align: center; font-size: 3rem; color: var(--muted); padding: 1rem 0 2rem; }
+
+.toast {
+  position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 6rem);
+  transform: translate(-50%, 5rem); opacity: 0; pointer-events: none;
+  background: var(--ink); color: #fff; font-size: 4rem; font-weight: 600;
+  padding: 3rem 5rem; border-radius: 100vmax; box-shadow: 0 2rem 5rem rgb(0 0 0 / 30%);
+  transition: opacity 200ms, transform 200ms; max-width: 92%; text-align: center;
+}
+.toast.show { opacity: 100%; transform: translate(-50%, 0); }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <svg viewBox="0 0 512 512" aria-hidden="true">
+    <circle cx="256" cy="256" r="230" fill="#0a0a0a"/>
+    <circle cx="256" cy="256" r="150" fill="none" stroke="#1d6fa8" stroke-width="32"/>
+    <circle cx="256" cy="256" r="70" fill="none" stroke="#fff" stroke-width="24"/>
+    <circle cx="256" cy="256" r="18" fill="#fff"/>
+  </svg>
+  <div>
+    <h1>Disc Golf Soundboard</h1>
+    <p>Tee pad sound effects</p>
+  </div>
+</header>
+
+<div class="update" id="update" role="status">
+  <strong id="updateTitle">Update available</strong>
+  <ul id="updateList"></ul>
+  <button id="updateBtn" type="button">Update now</button>
+</div>
+
+<main>
+  <section class="card" aria-label="Sound selection">
+    <div id="dropdowns" style="display:contents"></div>
+    <div class="actions">
+      <button class="btn reset" id="resetBtn" type="button">Reset</button>
+      <button class="btn play" id="playBtn" type="button" disabled>Play</button>
+    </div>
+  </section>
+  <footer id="ver"></footer>
+</main>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="sounds.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var GROUPS = [
+    { id: 'walkups',  label: 'Walk Ups',      sections: [
+      { key: 'positive', label: 'Positive', cls: 'pos' },
+      { key: 'negative', label: 'Negative', cls: 'neg' } ] },
+    { id: 'teeshots', label: 'Tee Shots',     sections: [
+      { key: 'positive', label: 'Positive', cls: 'pos' },
+      { key: 'negative', label: 'Negative', cls: 'neg' } ] },
+    { id: 'pressure', label: 'High Pressure', sections: [
+      { key: 'all', label: null, cls: 'all' } ] }
+  ];
+
+  var CACHE = 'dgs-cache';
+  var SHELL = ['./', 'index.html', 'sounds.js', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png'];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var playBtn = $('playBtn'), resetBtn = $('resetBtn'), toastEl = $('toast');
+  var dds = {};          // id -> {root, btn, val, list}
+  var selected = null;   // {group, name, file, cls}
+  var audio = new Audio();
+  audio.preload = 'auto';
+  var toastTimer;
+
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2200);
+  }
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function closeAll() {
+    Object.keys(dds).forEach(function (id) {
+      dds[id].root.classList.remove('open');
+      dds[id].btn.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  function clearGroup(id) {
+    var d = dds[id];
+    d.val.textContent = 'Select a clip';
+    d.btn.classList.remove('has');
+    d.btn.style.color = '';
+    d.list.querySelectorAll('.opt').forEach(function (o) { o.setAttribute('aria-selected', 'false'); });
+  }
+
+  function resetAll() {
+    Object.keys(dds).forEach(clearGroup);
+    selected = null;
+    playBtn.disabled = true;
+    resetBtn.disabled = true;
+    closeAll();
+  }
+
+  function select(group, item, cls) {
+    Object.keys(dds).forEach(function (id) { if (id !== group.id) clearGroup(id); });
+    var d = dds[group.id];
+    d.list.querySelectorAll('.opt').forEach(function (o) { o.setAttribute('aria-selected', 'false'); });
+    item.node.setAttribute('aria-selected', 'true');
+    d.val.textContent = item.name;
+    d.btn.classList.add('has');
+    d.btn.style.color = cls === 'pos' ? 'var(--pos)' : cls === 'neg' ? 'var(--neg)' : 'var(--ink)';
+    selected = { group: group.id, name: item.name, file: item.file };
+    playBtn.disabled = false;
+    resetBtn.disabled = false;
+    closeAll();
+  }
+
+  function build() {
+    var host = $('dropdowns');
+    GROUPS.forEach(function (g) {
+      var root = el('div', 'dd');
+      var label = el('span', 'dd-label', g.label);
+      var btn = el('button', 'dd-btn');
+      btn.type = 'button';
+      btn.setAttribute('aria-haspopup', 'listbox');
+      btn.setAttribute('aria-expanded', 'false');
+      var val = el('span', 'val', 'Select a clip');
+      btn.appendChild(val);
+      btn.appendChild(el('span', 'chev'));
+      var list = el('div', 'dd-list');
+      list.setAttribute('role', 'listbox');
+      list.setAttribute('aria-label', g.label);
+
+      var total = 0;
+      g.sections.forEach(function (s) {
+        var items = ((window.SOUNDS || {})[g.id] || {})[s.key] || [];
+        if (!items.length) return;
+        total += items.length;
+        if (s.label) list.appendChild(el('div', 'sec-head ' + s.cls, s.label));
+        items.forEach(function (it) {
+          var o = el('button', 'opt ' + s.cls, it.name);
+          o.type = 'button';
+          o.setAttribute('role', 'option');
+          o.setAttribute('aria-selected', 'false');
+          var item = { name: it.name, file: it.file, node: o };
+          o.addEventListener('click', function () { select(g, item, s.cls); });
+          list.appendChild(o);
+        });
+      });
+      if (!total) list.appendChild(el('div', 'empty', 'No clips added yet.'));
+
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var wasOpen = root.classList.contains('open');
+        closeAll();
+        if (!wasOpen) {
+          root.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
+
+      root.appendChild(label);
+      root.appendChild(btn);
+      root.appendChild(list);
+      host.appendChild(root);
+      dds[g.id] = { root: root, btn: btn, val: val, list: list };
+    });
+    resetBtn.disabled = true;
+  }
+
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.dd')) closeAll();
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(); });
+
+  resetBtn.addEventListener('click', resetAll);
+
+  playBtn.addEventListener('click', function () {
+    if (!selected) return;
+    var s = selected;
+    audio.pause();
+    audio.src = 'sounds/' + s.file;
+    var p = audio.play();
+    if (p && p.catch) p.catch(function () { toast('Clip not found: ' + s.name); });
+    resetAll();
+  });
+  audio.addEventListener('error', function () {
+    if (audio.getAttribute('src')) toast('Clip not found');
+  });
+
+  /* ---------- Offline cache + update check ---------- */
+  function allFiles() {
+    var files = SHELL.slice();
+    var S = window.SOUNDS || {};
+    Object.keys(S).forEach(function (g) {
+      Object.keys(S[g]).forEach(function (k) {
+        S[g][k].forEach(function (it) { files.push('sounds/' + it.file); });
+      });
+    });
+    return files;
+  }
+
+  function precache(onlyMissing) {
+    if (!('caches' in window)) return Promise.resolve();
+    return caches.open(CACHE).then(function (cache) {
+      return Promise.all(allFiles().map(function (f) {
+        var have = onlyMissing ? cache.match(f) : Promise.resolve(null);
+        return have.then(function (hit) {
+          if (hit) return;
+          return fetch(f, { cache: 'reload' }).then(function (r) {
+            if (r.ok) return cache.put(f, r);
+          });
+        }).catch(function () {});
+      }));
+    });
+  }
+
+  function getInstalled() { try { return localStorage.getItem('dgs-version'); } catch (e) { return null; } }
+  function setInstalled(v) { try { localStorage.setItem('dgs-version', v); } catch (e) {} }
+
+  function showVersion(v) { $('ver').textContent = 'Version ' + v; }
+
+  function checkUpdate() {
+    fetch('version.json', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (remote) {
+      var installed = getInstalled();
+      if (!installed) {
+        precache().then(function () { setInstalled(remote.version); showVersion(remote.version); });
+        return;
+      }
+      showVersion(installed);
+      if (installed !== remote.version) {
+        $('updateTitle').textContent = 'Update available: version ' + remote.version;
+        var ul = $('updateList');
+        ul.textContent = '';
+        (remote.changes || []).forEach(function (c) { ul.appendChild(el('li', null, c)); });
+        $('update').classList.add('show');
+        $('updateBtn').onclick = function () {
+          var b = $('updateBtn');
+          b.disabled = true; b.textContent = 'Updating...';
+          precache().then(function () { setInstalled(remote.version); location.reload(); });
+        };
+      } else {
+        precache(true); // quietly fetch any newly added clips
+      }
+    }).catch(function () {
+      var v = getInstalled();
+      if (v) showVersion(v);
+    });
+  }
+
+  build();
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+  checkUpdate();
+})();
+</script>
+</body>
+</html>
