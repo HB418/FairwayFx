@@ -3,29 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0a0a0a">
+<meta name="theme-color" content="#1b3320">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<title>Disc Golf Soundboard</title>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Screamin' Tees</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
+/* THEME: natural colors. Change them here and everything follows. */
 :root {
-  --blue: #1d6fa8;
-  --blue-dark: #155882;
-  --blue-tint: #e6f1f9;
-  --ink: #0a0a0a;
-  --pos: #168a45;
-  --pos-tint: #e8f5ed;
-  --neg: #c62828;
-  --neg-tint: #fbeaea;
-  --bg: #f4f6f8;
-  --card: #ffffff;
-  --line: #d9dfe5;
-  --muted: #6b7680;
-  --focus: rgb(29 111 168 / 40%);
+  --text: #f6f3e8;
+  --muted: #b9c6ac;
+  --ink: #16200f;
+  --sheet: #17261b;
+  --sheet-2: #213528;
+  --line: #34503b;
+  --accent: #f2a33a;
+  --accent-dark: #b9741a;
+  --taunt: #e2574c;
+  --hype: #8fe36f;
+  --c1: #e2574c;   /* Throws tee pad + basket */
+  --c2: #f2a33a;   /* Walk-Ups tee pad + basket */
+  --c3: #4aa3df;   /* High Pressure tee pad + basket */
 }
 /* 1rem = 4 units. Root scales with the screen width, capped on wide screens. */
 html { font-size: max(1vw, 25%); }
@@ -36,156 +37,239 @@ html, body { margin: 0; height: 100%; }
 body {
   font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 4rem;
-  background: var(--bg);
-  color: var(--ink);
+  background: #1f3a1f;
+  color: var(--text);
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
   -webkit-text-size-adjust: 100%;
 }
+/* Lawn background */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1;
+  background:
+    linear-gradient(rgb(10 24 10 / 35%), rgb(10 24 10 / 55%)),
+    url("background.jpg") center / cover no-repeat;
+}
+body.locked { overflow: hidden; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:disabled { cursor: default; }
+button:focus-visible { outline: medium solid var(--accent); outline-offset: 1rem; }
 
 /* Header */
+@font-face { font-family: 'Luckiest Guy'; src: url('luckiest-guy.woff2') format('woff2'); font-weight: 400; font-display: swap; }
 .top {
-  background: var(--ink);
-  color: #fff;
-  padding: calc(env(safe-area-inset-top) + 4rem) 5rem 5rem;
-  display: flex;
-  align-items: center;
-  gap: 4rem;
-  box-shadow: 0 1rem 4rem rgb(0 0 0 / 25%);
-  position: relative;
-  z-index: 2;
+  margin: 0;
+  padding: calc(env(safe-area-inset-top) + 3rem) 5rem 3rem;
+  display: flex; flex-direction: column; align-items: stretch; gap: 2rem;
+  background: #254001;
+  border-bottom: 1rem solid #0f1f00;
+  box-shadow: 0 4rem 8rem rgb(0 0 0 / 55%);
 }
-.top svg { width: 10rem; height: 10rem; flex: none; }
-.top h1 { margin: 0; font-size: 5rem; line-height: 110%; font-weight: 800; text-transform: uppercase; }
-.top p { margin: 1rem 0 0; font-size: 3rem; color: #9fb4c4; text-transform: uppercase; }
+.top h1 {
+  margin: 0; text-align: center; text-wrap: balance;
+  font-family: 'Luckiest Guy', 'Arial Black', sans-serif;
+  font-size: 9rem; line-height: 100%; font-weight: 400; text-transform: uppercase;
+  letter-spacing: 1rem; color: var(--text);
+  text-shadow: 0 1rem 0 #000, 0 2rem 4rem rgb(0 0 0 / 50%);
+}
+.top .line2 { display: flex; align-items: center; justify-content: flex-start; gap: 4rem; }
+.top img { width: 20rem; height: 20rem; flex: none; }
+.top p {
+  margin: 0; min-width: 0; font-size: 4rem; line-height: 140%; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1rem; color: var(--text);
+}
 
 /* Update banner */
 .update {
   display: none;
-  background: var(--blue-tint);
-  border-bottom: thin solid #bcd8ec;
-  padding: 3rem 5rem;
+  margin: 2rem 6rem 0;
+  background: var(--sheet);
+  border: thin solid var(--line);
+  border-radius: 5rem;
+  padding: 4rem 5rem;
   font-size: 4rem;
 }
 .update.show { display: block; }
-.update strong { display: block; margin-bottom: 1rem; color: var(--blue-dark); }
-.update ul { margin: 0 0 3rem; padding-left: 5rem; color: #223344; }
+.update strong { display: block; margin-bottom: 1rem; color: var(--accent); }
+.update ul { margin: 0 0 3rem; padding-left: 5rem; }
 .update button {
-  font: inherit; font-weight: 700; color: #fff; background: var(--blue);
-  border: 0; border-radius: 100vmax; padding: 3rem 5rem; min-height: 11rem;
+  font-weight: 700; color: var(--ink); background: var(--accent);
+  border: 0; border-radius: 100vmax; padding: 3rem 5rem; min-height: 12rem;
 }
 
-/* Layout */
+/* Home: three tee pad - label - basket rows */
 main {
   flex: 1;
   width: 100%;
   max-width: 120rem;
   margin: 0 auto;
-  padding: 5rem 4rem calc(env(safe-area-inset-bottom) + 3rem);
+  padding: 2rem 4rem calc(env(safe-area-inset-bottom) + 3rem);
   display: flex;
   flex-direction: column;
-  gap: 4rem;
+  gap: 3rem;
 }
-.card {
-  background: var(--card);
-  border-radius: 5rem;
-  padding: 5rem 4rem 4rem;
-  box-shadow: 0 1rem 1rem rgb(10 10 10 / 6%), 0 2rem 5rem rgb(10 10 10 / 8%);
-  border-top: 1rem solid var(--blue);
-  display: flex;
-  flex-direction: column;
-  gap: 5rem;
+.menu { flex: 1; display: flex; flex-direction: column; gap: 2rem; }
+.row {
+  position: relative;
+  flex: 1; min-height: 38rem;
+  display: grid; grid-template-columns: 28rem minmax(0, 1fr) 22rem; align-items: center; gap: 2rem;
+  padding: 0 2rem;
+  background: none; border: 0;
+  transition: transform 100ms;
 }
+.row:active { transform: scale(98%); }
+.row:nth-child(1) { --c: var(--c1); }
+.row:nth-child(2) { --c: var(--c2); }
+.row:nth-child(3) { --c: var(--c3); }
+.pad, .basket { display: block; filter: drop-shadow(0 3rem 4rem rgb(0 0 0 / 45%)); }
+.pad { justify-self: start; width: 28rem; }
+.basket { justify-self: end; width: 22rem; transform-origin: 50% 100%; }
+.pad svg, .basket svg { display: block; width: 100%; height: auto; }
+.label {
+  justify-self: center; text-align: center;
+  font-size: 6rem; font-weight: 800; line-height: 110%;
+  text-shadow: 0 1rem 1rem rgb(0 0 0 / 50%), 0 2rem 6rem rgb(0 0 0 / 60%);
+}
+.disc {
+  position: absolute; left: 0; top: 0; z-index: 2;
+  width: 9rem; height: 9rem; opacity: 0; pointer-events: none;
+}
+.disc svg { display: block; width: 100%; height: 100%; filter: drop-shadow(0 2rem 2rem rgb(0 0 0 / 45%)); }
+footer { text-align: center; font-size: 3rem; color: var(--muted); padding: 1rem 0 2rem; text-shadow: 0 1rem 3rem rgb(0 0 0 / 60%); }
 
-/* Dropdown */
-.dd { position: relative; }
-.dd-label {
-  display: inline-block;
+/* Popup */
+.modal {
+  position: fixed; inset: 0; z-index: 10;
+  display: flex; align-items: flex-end; justify-content: center;
+  background: rgb(0 0 0 / 0%);
+  transition: background 250ms;
+}
+.modal[hidden] { display: none; }
+.modal.open { background: rgb(0 0 0 / 60%); backdrop-filter: blur(2rem); }
+.sheet {
+  --tone: var(--accent);
+  width: 100%; max-width: 120rem; max-height: 92dvh;
+  display: flex; flex-direction: column; gap: 5rem;
+  padding: 6rem 6rem calc(env(safe-area-inset-bottom) + 6rem);
+  background: var(--sheet);
+  border: thin solid var(--line); border-bottom: 0;
+  border-radius: 8rem 8rem 0 0;
+  box-shadow: 0 -3rem 10rem rgb(0 0 0 / 50%);
+  transform: translateY(100%);
+  transition: transform 300ms ease-out;
+}
+.modal.open .sheet { transform: none; }
+.sheet[data-tone="taunts"] { --tone: var(--taunt); }
+.sheet[data-tone="hypes"] { --tone: var(--hype); }
+
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 4rem; }
+.sheet-head h2 { margin: 0; font-size: 8rem; font-weight: 800; }
+.x {
+  flex: none; position: relative;
+  width: 15rem; height: 15rem; border-radius: 50%;
+  background: transparent; border: medium solid var(--muted);
+}
+.x::before, .x::after {
+  content: ""; position: absolute; top: 50%; left: 50%;
+  width: 7rem; height: 1rem; background: var(--text); border-radius: 1rem;
+}
+.x::before { transform: translate(-50%, -50%) rotate(45deg); }
+.x::after { transform: translate(-50%, -50%) rotate(-45deg); }
+
+/* Taunts / Hypes toggle */
+.seg {
+  position: relative; flex: none;
+  display: grid; grid-template-columns: 1fr 1fr;
+  padding: 1rem; background: rgb(0 0 0 / 35%);
+  border: thin solid var(--line); border-radius: 100vmax;
+}
+.seg[hidden] { display: none; }
+.seg .thumb {
+  position: absolute; top: 1rem; bottom: 1rem; left: 1rem;
+  width: calc(50% - 1rem); border-radius: 100vmax;
+  background: var(--taunt);
+  box-shadow: 0 2rem 5rem rgb(0 0 0 / 40%);
+  transition: transform 200ms ease-out, background 200ms;
+}
+.seg[data-tab="hypes"] .thumb { transform: translateX(100%); background: var(--hype); }
+.seg button {
+  position: relative; z-index: 1;
+  min-height: 15rem; border: 0; background: none;
   font-size: 4rem; font-weight: 800; text-transform: uppercase;
-  color: var(--blue-dark); background: var(--blue-tint);
-  padding: 1rem 3rem; border-radius: 100vmax; margin-bottom: 2rem;
+  color: var(--muted);
 }
-.dd-btn {
-  width: 100%; min-height: 14rem;
+.seg button[aria-selected="true"] { color: var(--ink); }
+.seg[data-tab="taunts"] button[aria-selected="true"] { color: #fff; }
+
+/* Clip list */
+.clips {
+  flex: 1 1 auto; min-height: 40rem;
+  overflow-y: auto; overscroll-behavior: contain;
+  display: flex; flex-direction: column; gap: 3rem;
+}
+.clip {
+  flex: none; min-height: 17rem;
   display: flex; align-items: center; justify-content: space-between; gap: 3rem;
-  font: inherit; font-size: 4rem; font-weight: 600; text-align: left;
-  color: var(--muted); background: #fff;
-  border: medium solid var(--line); border-radius: 4rem; padding: 0 4rem;
-  box-shadow: 0 1rem 1rem rgb(10 10 10 / 5%);
+  padding: 0 5rem; text-align: left;
+  font-size: 4rem; font-weight: 700;
+  background: var(--sheet-2);
+  border: medium solid transparent; border-radius: 5rem;
 }
-.dd-btn .val { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.dd-btn.has { font-weight: 700; }
-.dd-btn .chev { flex: none; width: 3rem; height: 3rem; margin-top: -1rem; border-right: medium solid var(--blue); border-bottom: medium solid var(--blue); transform: rotate(45deg); transition: transform 200ms, margin 200ms; }
-.dd.open .dd-btn { border-color: var(--blue); box-shadow: 0 0 0 1rem var(--focus); }
-.dd.open .chev { transform: rotate(-135deg); margin-top: 1rem; }
-.dd-btn:focus-visible { outline: medium solid var(--focus); outline-offset: 1rem; }
+.clip:active { background: var(--line); }
+.clip[aria-pressed="true"] { border-color: var(--tone); background: rgb(0 0 0 / 35%); }
+.clip.playing::after {
+  content: ""; flex: none; width: 4rem; height: 4rem; border-radius: 50%;
+  background: var(--tone); animation: pulse 1000ms ease-in-out infinite;
+}
+@keyframes pulse { 50% { opacity: 25%; } }
+.empty { padding: 8rem 4rem; text-align: center; color: var(--muted); }
 
-.dd-list {
-  display: none;
-  margin-top: 2rem;
-  max-height: 46dvh; overflow-y: auto; overscroll-behavior: contain;
-  background: #fff; border: thin solid var(--line); border-radius: 4rem;
-  box-shadow: 0 2rem 6rem rgb(10 10 10 / 14%);
-}
-.dd.open .dd-list { display: block; }
-.sec-head {
-  position: sticky; top: 0; z-index: 1;
-  padding: 3rem 4rem 2rem; font-size: 3rem; font-weight: 800; text-transform: uppercase;
-  border-bottom: thin solid var(--line);
-}
-.sec-head.pos { color: var(--pos); background: var(--pos-tint); }
-.sec-head.neg { color: var(--neg); background: var(--neg-tint); }
-.opt {
-  display: block; width: 100%; min-height: 13rem; text-align: left;
-  font: inherit; font-size: 4rem; font-weight: 600;
-  background: #fff; border: 0; border-bottom: thin solid #eef1f4; padding: 0 4rem;
-}
-.opt:last-child { border-bottom: 0; }
-.opt.pos { color: var(--pos); }
-.opt.neg { color: var(--neg); }
-.opt.all { color: var(--ink); }
-.opt:active { background: var(--bg); }
-.opt[aria-selected="true"] { background: var(--bg); box-shadow: inset 1rem 0 0 currentColor; }
-.empty { padding: 4rem; font-size: 4rem; color: var(--muted); }
-
-/* Buttons */
-.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+/* Play / Stop / Close */
+.actions { flex: none; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3rem; }
 .btn {
-  min-height: 14rem; border-radius: 100vmax; font: inherit; font-size: 4rem; font-weight: 800;
-  text-transform: uppercase; cursor: pointer;
-  transition: transform 80ms, box-shadow 80ms, opacity 150ms;
+  min-height: 16rem; border-radius: 100vmax;
+  font-size: 4rem; font-weight: 800; text-transform: uppercase;
+  transition: transform 80ms, opacity 150ms;
 }
-.btn:active:not(:disabled) { transform: translateY(1rem); box-shadow: 0 0 0 transparent; }
-.btn.reset { background: #fff; color: var(--ink); border: medium solid var(--ink); box-shadow: 0 1rem 0 rgb(10 10 10 / 12%); }
-.btn.play { background: var(--blue); color: #fff; border: medium solid var(--blue); box-shadow: 0 1rem 0 var(--blue-dark), 0 2rem 4rem rgb(29 111 168 / 30%); }
-.btn:disabled { opacity: 40%; box-shadow: none; }
-.btn:focus-visible { outline: medium solid var(--focus); outline-offset: 1rem; }
-
-footer { text-align: center; font-size: 3rem; color: var(--muted); padding: 1rem 0 2rem; }
+.btn:active:not(:disabled) { transform: translateY(1rem); }
+.btn.play { background: var(--accent); color: var(--ink); border: medium solid var(--accent); box-shadow: 0 1rem 0 var(--accent-dark), 0 2rem 6rem rgb(242 163 58 / 30%); }
+.btn.stop { background: var(--sheet-2); color: var(--text); border: medium solid var(--line); }
+.btn.close { background: transparent; color: var(--muted); border: medium solid var(--line); }
+.btn:disabled { opacity: 35%; box-shadow: none; }
 
 .toast {
-  position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 6rem);
+  position: fixed; z-index: 20; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 6rem);
   transform: translate(-50%, 5rem); opacity: 0; pointer-events: none;
-  background: var(--ink); color: #fff; font-size: 4rem; font-weight: 600;
-  padding: 3rem 5rem; border-radius: 100vmax; box-shadow: 0 2rem 5rem rgb(0 0 0 / 30%);
+  background: var(--text); color: var(--ink); font-size: 4rem; font-weight: 700;
+  padding: 3rem 5rem; border-radius: 100vmax; box-shadow: 0 2rem 5rem rgb(0 0 0 / 40%);
   transition: opacity 200ms, transform 200ms; max-width: 92%; text-align: center;
 }
 .toast.show { opacity: 100%; transform: translate(-50%, 0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet, .modal, .seg .thumb, .row, .btn { transition: none; }
+  .clip.playing::after { animation: none; }
+}
 </style>
 </head>
 <body>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="wood" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02 0.6" numOctaves="3" seed="5" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="1 0 0 0 0  1 0 0 0 0  1 0 0 0 0  0 0 0 0 1" result="g"/>
+      <feComposite in="g" in2="SourceAlpha" operator="in"/>
+    </filter>
+  </defs>
+</svg>
+
 <header class="top">
-  <svg viewBox="0 0 512 512" aria-hidden="true">
-    <circle cx="256" cy="256" r="230" fill="#0a0a0a"/>
-    <circle cx="256" cy="256" r="150" fill="none" stroke="#1d6fa8" stroke-width="32"/>
-    <circle cx="256" cy="256" r="70" fill="none" stroke="#fff" stroke-width="24"/>
-    <circle cx="256" cy="256" r="18" fill="#fff"/>
-  </svg>
-  <div>
-    <h1>Disc Golf Soundboard</h1>
-    <p>Tee pad sound effects</p>
+  <h1>Screamin' Tees</h1>
+  <div class="line2">
+    <img src="logo.jpg" alt="" width="360" height="360">
+    <p>Trash Talking<br>Soundboard</p>
   </div>
 </header>
 
@@ -196,44 +280,121 @@ footer { text-align: center; font-size: 3rem; color: var(--muted); padding: 1rem
 </div>
 
 <main>
-  <section class="card" aria-label="Sound selection">
-    <div id="dropdowns" style="display:contents"></div>
-    <div class="actions">
-      <button class="btn reset" id="resetBtn" type="button">Reset</button>
-      <button class="btn play" id="playBtn" type="button" disabled>Play</button>
-    </div>
-  </section>
+  <nav class="menu" id="menu" aria-label="Sound categories"></nav>
   <footer id="ver"></footer>
 </main>
 
+<div class="modal" id="modal" hidden>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" data-tone="taunts">
+    <div class="sheet-head">
+      <h2 id="sheetTitle"></h2>
+      <button class="x" id="xBtn" type="button" aria-label="Close"></button>
+    </div>
+    <div class="seg" id="seg" role="tablist" data-tab="taunts">
+      <span class="thumb"></span>
+      <button type="button" role="tab" data-tab="taunts" aria-selected="true">Taunts</button>
+      <button type="button" role="tab" data-tab="hypes" aria-selected="false">Hypes</button>
+    </div>
+    <div class="clips" id="clips"></div>
+    <div class="actions">
+      <button class="btn play" id="playBtn" type="button" disabled>Play</button>
+      <button class="btn stop" id="stopBtn" type="button" disabled>Stop</button>
+      <button class="btn close" id="closeBtn" type="button">Close</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status"></div>
+
+<template id="padArt">
+  <svg viewBox="0 0 160 100" aria-hidden="true">
+    <rect x="2" y="14" width="156" height="84" rx="2" fill="#35240f"/>
+    <path fill-rule="evenodd" fill="#7a5632" d="M2 8H158V92H2Z M11 17V83H149V17Z"/>
+    <path fill-rule="evenodd" d="M2 8H158V92H2Z M11 17V83H149V17Z" filter="url(#wood)" opacity="40%"/>
+    <image href="concrete.jpg" x="11" y="17" width="138" height="66" preserveAspectRatio="xMidYMid slice"/>
+    <rect x="135" y="17" width="12" height="66" style="fill:var(--c);mix-blend-mode:multiply" opacity="90%"/>
+    <rect x="11" y="17" width="138" height="66" fill="none" stroke="#000" stroke-width="3" opacity="35%"/>
+    <path d="M2 17H11 M149 17H158 M2 83H11 M149 83H158" stroke="#2a1b0a" stroke-width="1.5" fill="none"/>
+    <circle cx="6" cy="12" r="1.5" fill="#2a1b0a"/><circle cx="154" cy="12" r="1.5" fill="#2a1b0a"/>
+    <circle cx="6" cy="88" r="1.5" fill="#2a1b0a"/><circle cx="154" cy="88" r="1.5" fill="#2a1b0a"/>
+  </svg>
+</template>
+
+<template id="basketArt">
+  <svg viewBox="0 0 96 150" aria-hidden="true">
+    <ellipse cx="48" cy="144" rx="30" ry="5" fill="none" stroke="#000" stroke-width="3" opacity="25%"/>
+    <ellipse cx="48" cy="141" rx="30" ry="5" fill="none" stroke="#7b828b" stroke-width="2"/>
+    <path d="M48 138L24 144M48 138L72 144M48 138L48 146" stroke="#7b828b" stroke-width="1.5" fill="none"/>
+    <rect x="45" y="30" width="6" height="110" fill="#8d939b"/>
+    <rect x="45" y="30" width="2" height="110" fill="#b3b9c1"/>
+    <path d="M14 94A34 8 0 0 1 82 94" fill="none" stroke="#6b727a" stroke-width="1.5"/>
+    <path d="M18 94L24 106M30 90L33 103M40 88L41 102M56 88L55 102M66 90L63 103M78 94L72 106" stroke="#6b727a" stroke-width="1.5" fill="none"/>
+    <ellipse cx="48" cy="106" rx="24" ry="6" fill="none" stroke="#6b727a" stroke-width="1.5"/>
+    <g stroke="#dfe3e8" stroke-width="2.2" stroke-dasharray="3 2" fill="none">
+      <path d="M12.0 22Q13.8 62 37.0 98"/>
+      <path d="M19.2 22Q20.6 62 39.2 98"/>
+      <path d="M26.4 22Q27.5 62 41.4 98"/>
+      <path d="M33.6 22Q34.3 62 43.6 98"/>
+      <path d="M40.8 22Q41.2 62 45.8 98"/>
+      <path d="M48.0 22Q48.0 62 48.0 98"/>
+      <path d="M55.2 22Q54.8 62 50.2 98"/>
+      <path d="M62.4 22Q61.7 62 52.4 98"/>
+      <path d="M69.6 22Q68.5 62 54.6 98"/>
+      <path d="M76.8 22Q75.4 62 56.8 98"/>
+      <path d="M84.0 22Q82.2 62 59.0 98"/>
+    </g>
+    <ellipse cx="48" cy="96" rx="36" ry="9" fill="none" stroke="#9aa1aa" stroke-width="2"/>
+    <ellipse cx="48" cy="100" rx="36" ry="9" fill="none" stroke="#000" stroke-width="1.5" opacity="20%"/>
+    <path d="M12 96L18 108M24 102L28 112M38 105L40 114M58 105L56 114M72 102L68 112M84 96L78 108" stroke="#9aa1aa" stroke-width="1.8" fill="none"/>
+    <path d="M18 108Q48 122 78 108" fill="none" stroke="#9aa1aa" stroke-width="1.8"/>
+    <ellipse cx="48" cy="24" rx="36" ry="10" fill="none" stroke="#000" stroke-width="7" opacity="25%"/>
+    <ellipse cx="48" cy="22" rx="36" ry="10" fill="none" style="stroke:var(--c)" stroke-width="7"/>
+    <ellipse cx="48" cy="20" rx="36" ry="10" fill="none" stroke="#fff" stroke-width="1" opacity="35%"/>
+  </svg>
+</template>
+
+<template id="discArt">
+  <svg viewBox="0 0 48 48" aria-hidden="true">
+    <circle cx="24" cy="24" r="22" style="fill:var(--c)"/>
+    <circle cx="24" cy="24" r="22" fill="none" stroke="#fff" stroke-width="2" opacity="60%"/>
+    <circle cx="24" cy="24" r="13" fill="none" stroke="#fff" stroke-width="2" opacity="45%"/>
+    <circle cx="24" cy="24" r="5" fill="#fff" opacity="55%"/>
+    <rect x="22" y="3" width="4" height="9" rx="2" fill="#fff" opacity="70%"/>
+  </svg>
+</template>
 
 <script src="sounds.js"></script>
 <script>
 (function () {
   'use strict';
 
+  // Taunts hold the Negative clips, Hypes hold the Positive clips.
+  var PARTS = {
+    taunts: { key: 'negative' },
+    hypes:  { key: 'positive' }
+  };
   var GROUPS = [
-    { id: 'walkups',  label: 'Walk Ups',      sections: [
-      { key: 'positive', label: 'Positive', cls: 'pos' },
-      { key: 'negative', label: 'Negative', cls: 'neg' } ] },
-    { id: 'teeshots', label: 'Tee Shots',     sections: [
-      { key: 'positive', label: 'Positive', cls: 'pos' },
-      { key: 'negative', label: 'Negative', cls: 'neg' } ] },
-    { id: 'pressure', label: 'High Pressure', sections: [
-      { key: 'all', label: null, cls: 'all' } ] }
+    { id: 'teeshots', label: 'Throws',        parts: true },
+    { id: 'walkups',  label: 'Walk-Ups',      parts: true },
+    { id: 'pressure', label: 'High Pressure', parts: false }
   ];
 
   var CACHE = 'dgs-cache';
-  var SHELL = ['./', 'index.html', 'sounds.js', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png'];
+  var SHELL = ['./', 'index.html', 'sounds.js', 'background.jpg', 'concrete.jpg', 'logo.jpg', 'luckiest-guy.woff2', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png'];
+  var FLIGHT_MS = 600;
 
   var $ = function (id) { return document.getElementById(id); };
-  var playBtn = $('playBtn'), resetBtn = $('resetBtn'), toastEl = $('toast');
-  var dds = {};          // id -> {root, btn, val, list}
-  var selected = null;   // {group, name, file, cls}
+  var modal = $('modal'), sheet = $('sheet'), seg = $('seg'), clipsEl = $('clips');
+  var playBtn = $('playBtn'), stopBtn = $('stopBtn'), toastEl = $('toast');
   var audio = new Audio();
   audio.preload = 'auto';
-  var toastTimer;
+  var toastTimer, closeTimer;
+  var current = null;   // open group
+  var tab = 'taunts';
+  var selected = null;  // {name, file, node}
+  var opener = null;
+  var flying = false;
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function toast(msg) {
     toastEl.textContent = msg;
@@ -249,102 +410,173 @@ footer { text-align: center; font-size: 3rem; color: var(--muted); padding: 1rem
     return e;
   }
 
-  function closeAll() {
-    Object.keys(dds).forEach(function (id) {
-      dds[id].root.classList.remove('open');
-      dds[id].btn.setAttribute('aria-expanded', 'false');
+  /* ---------- Remembered Taunts/Hypes choice, one per popup ---------- */
+  function getTab(g) {
+    try {
+      var v = localStorage.getItem('st-tab-' + g.id);
+      if (v === 'taunts' || v === 'hypes') return v;
+    } catch (e) {}
+    return 'taunts';
+  }
+  function saveTab(g, v) { try { localStorage.setItem('st-tab-' + g.id, v); } catch (e) {} }
+
+  /* ---------- Audio state ---------- */
+  function setPlaying(on) {
+    stopBtn.disabled = !on;
+    var src = audio.getAttribute('src');
+    clipsEl.querySelectorAll('.clip').forEach(function (c) {
+      c.classList.toggle('playing', !!on && src === 'sounds/' + c.getAttribute('data-file'));
     });
   }
+  function stopAudio() {
+    audio.pause();
+    try { audio.currentTime = 0; } catch (e) {}
+    setPlaying(false);
+  }
+  audio.addEventListener('playing', function () { setPlaying(true); });
+  audio.addEventListener('ended', function () { setPlaying(false); });
+  audio.addEventListener('pause', function () { setPlaying(false); });
+  audio.addEventListener('error', function () {
+    if (audio.getAttribute('src')) { setPlaying(false); toast('Clip not found'); }
+  });
 
-  function clearGroup(id) {
-    var d = dds[id];
-    d.val.textContent = 'Select a clip';
-    d.btn.classList.remove('has');
-    d.btn.style.color = '';
-    d.list.querySelectorAll('.opt').forEach(function (o) { o.setAttribute('aria-selected', 'false'); });
+  /* ---------- Popup ---------- */
+  function itemsFor(g) {
+    var S = (window.SOUNDS || {})[g.id] || {};
+    return (g.parts ? S[PARTS[tab].key] : S.all) || [];
   }
 
-  function resetAll() {
-    Object.keys(dds).forEach(clearGroup);
+  function renderList() {
+    stopAudio();
     selected = null;
     playBtn.disabled = true;
-    resetBtn.disabled = true;
-    closeAll();
-  }
-
-  function select(group, item, cls) {
-    Object.keys(dds).forEach(function (id) { if (id !== group.id) clearGroup(id); });
-    var d = dds[group.id];
-    d.list.querySelectorAll('.opt').forEach(function (o) { o.setAttribute('aria-selected', 'false'); });
-    item.node.setAttribute('aria-selected', 'true');
-    d.val.textContent = item.name;
-    d.btn.classList.add('has');
-    d.btn.style.color = cls === 'pos' ? 'var(--pos)' : cls === 'neg' ? 'var(--neg)' : 'var(--ink)';
-    selected = { group: group.id, name: item.name, file: item.file };
-    playBtn.disabled = false;
-    resetBtn.disabled = false;
-    closeAll();
-  }
-
-  function build() {
-    var host = $('dropdowns');
-    GROUPS.forEach(function (g) {
-      var root = el('div', 'dd');
-      var label = el('span', 'dd-label', g.label);
-      var btn = el('button', 'dd-btn');
-      btn.type = 'button';
-      btn.setAttribute('aria-haspopup', 'listbox');
-      btn.setAttribute('aria-expanded', 'false');
-      var val = el('span', 'val', 'Select a clip');
-      btn.appendChild(val);
-      btn.appendChild(el('span', 'chev'));
-      var list = el('div', 'dd-list');
-      list.setAttribute('role', 'listbox');
-      list.setAttribute('aria-label', g.label);
-
-      var total = 0;
-      g.sections.forEach(function (s) {
-        var items = ((window.SOUNDS || {})[g.id] || {})[s.key] || [];
-        if (!items.length) return;
-        total += items.length;
-        if (s.label) list.appendChild(el('div', 'sec-head ' + s.cls, s.label));
-        items.forEach(function (it) {
-          var o = el('button', 'opt ' + s.cls, it.name);
-          o.type = 'button';
-          o.setAttribute('role', 'option');
-          o.setAttribute('aria-selected', 'false');
-          var item = { name: it.name, file: it.file, node: o };
-          o.addEventListener('click', function () { select(g, item, s.cls); });
-          list.appendChild(o);
-        });
+    clipsEl.textContent = '';
+    var items = itemsFor(current);
+    if (!items.length) { clipsEl.appendChild(el('div', 'empty', 'No clips added yet.')); return; }
+    items.forEach(function (it) {
+      var b = el('button', 'clip', it.name);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', 'false');
+      b.setAttribute('data-file', it.file);
+      b.addEventListener('click', function () {
+        clipsEl.querySelectorAll('.clip').forEach(function (c) { c.setAttribute('aria-pressed', 'false'); });
+        b.setAttribute('aria-pressed', 'true');
+        selected = { name: it.name, file: it.file, node: b };
+        playBtn.disabled = false;
+        setPlaying(!audio.paused);
       });
-      if (!total) list.appendChild(el('div', 'empty', 'No clips added yet.'));
-
-      btn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var wasOpen = root.classList.contains('open');
-        closeAll();
-        if (!wasOpen) {
-          root.classList.add('open');
-          btn.setAttribute('aria-expanded', 'true');
-        }
-      });
-
-      root.appendChild(label);
-      root.appendChild(btn);
-      root.appendChild(list);
-      host.appendChild(root);
-      dds[g.id] = { root: root, btn: btn, val: val, list: list };
+      clipsEl.appendChild(b);
     });
-    resetBtn.disabled = true;
   }
 
-  document.addEventListener('click', function (e) {
-    if (!e.target.closest('.dd')) closeAll();
-  });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(); });
+  function setTab(v, remember) {
+    tab = v;
+    seg.setAttribute('data-tab', v);
+    sheet.setAttribute('data-tone', v);
+    seg.querySelectorAll('button').forEach(function (b) {
+      b.setAttribute('aria-selected', b.getAttribute('data-tab') === v ? 'true' : 'false');
+    });
+    if (remember && current) saveTab(current, v);
+    renderList();
+  }
 
-  resetBtn.addEventListener('click', resetAll);
+  function openGroup(g, btn) {
+    clearTimeout(closeTimer);
+    current = g;
+    opener = btn;
+    $('sheetTitle').textContent = g.label;
+    seg.hidden = !g.parts;
+    if (g.parts) { setTab(getTab(g), false); }
+    else { sheet.setAttribute('data-tone', 'all'); renderList(); }
+    modal.hidden = false;
+    document.body.classList.add('locked');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { modal.classList.add('open'); });
+    });
+    $('xBtn').focus({ preventScroll: true });
+  }
+
+  function closeModal() {
+    if (modal.hidden) return;
+    stopAudio();
+    selected = null;
+    modal.classList.remove('open');
+    document.body.classList.remove('locked');
+    closeTimer = setTimeout(function () { modal.hidden = true; }, 300);
+    if (opener) opener.focus({ preventScroll: true });
+    current = null;
+  }
+
+  /* ---------- Home rows: a disc flies from the tee pad to the basket ---------- */
+  function fly(row, done) {
+    var disc = row.querySelector('.disc');
+    var pad = row.querySelector('.pad'), basket = row.querySelector('.basket'), label = row.querySelector('.label');
+    if (!disc.animate) { done(); return; }
+    var rr = row.getBoundingClientRect(), pr = pad.getBoundingClientRect();
+    var br = basket.getBoundingClientRect(), lr = label.getBoundingClientRect();
+    var size = disc.offsetWidth;
+    var x0 = pr.left + pr.width / 2 - rr.left;
+    var y0 = pr.top + pr.height * 40 / 100 - rr.top;
+    var x1 = br.left + br.width / 2 - rr.left;
+    var y1 = br.top + br.height * 28 / 100 - rr.top;
+    // Lowest point of the flight sits just under the label.
+    var low = lr.bottom - rr.top + size / 2;
+    var dip = Math.max(low - (y0 + y1) / 2, size / 2);
+    var frames = [], N = 30, i, t, k, x, y, s, o;
+    for (i = 0; i <= N; i++) {
+      t = i / N;
+      k = 1 - Math.pow(1 - t, 16 / 10);               // quick off the pad, easing in
+      x = x0 + (x1 - x0) * k;
+      y = y0 + (y1 - y0) * t + dip * Math.sin(Math.PI * Math.pow(t, 85 / 100)); // turn right, then fade left
+      s = 100 - 55 * t;                               // shrinks toward the basket
+      o = t < 80 / 100 ? 100 : 100 - (t - 80 / 100) * 500;
+      frames.push({
+        opacity: o / 100,
+        transform: 'translate(' + (x - size / 2) + 'px,' + (y - size / 2) + 'px) rotate(' + (t * 540) + 'deg) scale(' + (s / 100) + ')'
+      });
+    }
+    var a = disc.animate(frames, { duration: FLIGHT_MS, easing: 'linear', fill: 'forwards' });
+    basket.animate(
+      [{ transform: 'scale(1)' }, { transform: 'scale(1.06)' }, { transform: 'scale(1)' }],
+      { duration: 200, delay: FLIGHT_MS - 120 }
+    );
+    a.onfinish = function () { a.cancel(); done(); };
+  }
+
+  function press(g, row) {
+    if (flying) return;
+    if (reduceMotion) { openGroup(g, row); return; }
+    flying = true;
+    fly(row, function () { flying = false; openGroup(g, row); });
+  }
+
+  function buildMenu() {
+    var host = $('menu');
+    GROUPS.forEach(function (g) {
+      var row = el('button', 'row');
+      row.type = 'button';
+      var pad = el('span', 'pad');
+      pad.appendChild($('padArt').content.cloneNode(true));
+      var lab = el('span', 'label', g.label);
+      var bas = el('span', 'basket');
+      bas.appendChild($('basketArt').content.cloneNode(true));
+      var disc = el('span', 'disc');
+      disc.appendChild($('discArt').content.cloneNode(true));
+      row.appendChild(pad);
+      row.appendChild(lab);
+      row.appendChild(bas);
+      row.appendChild(disc);
+      row.addEventListener('click', function () { press(g, row); });
+      host.appendChild(row);
+    });
+  }
+
+  seg.querySelectorAll('button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var v = b.getAttribute('data-tab');
+      if (v !== tab) setTab(v, true);
+    });
+  });
 
   playBtn.addEventListener('click', function () {
     if (!selected) return;
@@ -353,11 +585,12 @@ footer { text-align: center; font-size: 3rem; color: var(--muted); padding: 1rem
     audio.src = 'sounds/' + s.file;
     var p = audio.play();
     if (p && p.catch) p.catch(function () { toast('Clip not found: ' + s.name); });
-    resetAll();
   });
-  audio.addEventListener('error', function () {
-    if (audio.getAttribute('src')) toast('Clip not found');
-  });
+  stopBtn.addEventListener('click', stopAudio);
+  $('closeBtn').addEventListener('click', closeModal);
+  $('xBtn').addEventListener('click', closeModal);
+  modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
 
   /* ---------- Offline cache + update check ---------- */
   function allFiles() {
@@ -419,7 +652,7 @@ footer { text-align: center; font-size: 3rem; color: var(--muted); padding: 1rem
     });
   }
 
-  build();
+  buildMenu();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
   checkUpdate();
 })();
