@@ -80,24 +80,6 @@ button:focus-visible { outline: medium solid var(--accent); outline-offset: 1rem
   letter-spacing: 1rem; color: var(--text);
 }
 
-/* Update banner */
-.update {
-  display: none;
-  margin: 2rem 6rem 0;
-  background: var(--sheet);
-  border: thin solid var(--line);
-  border-radius: 5rem;
-  padding: 4rem 5rem;
-  font-size: 4rem;
-}
-.update.show { display: block; }
-.update strong { display: block; margin-bottom: 1rem; color: var(--accent); }
-.update ul { margin: 0 0 3rem; padding-left: 5rem; }
-.update button {
-  font-weight: 700; color: var(--ink); background: var(--accent);
-  border: 0; border-radius: 100vmax; padding: 3rem 5rem; min-height: 12rem;
-}
-
 /* Home: three tee pad - label - basket rows */
 main {
   flex: 1;
@@ -136,7 +118,6 @@ main {
   width: 9rem; height: 9rem; opacity: 0; pointer-events: none;
 }
 .disc svg { display: block; width: 100%; height: 100%; filter: drop-shadow(0 2rem 2rem rgb(0 0 0 / 45%)); }
-footer { text-align: center; font-size: 3rem; color: var(--muted); padding: 1rem 0 2rem; text-shadow: 0 1rem 3rem rgb(0 0 0 / 60%); }
 
 /* Popup */
 .modal {
@@ -273,15 +254,8 @@ footer { text-align: center; font-size: 3rem; color: var(--muted); padding: 1rem
   </div>
 </header>
 
-<div class="update" id="update" role="status">
-  <strong id="updateTitle">Update available</strong>
-  <ul id="updateList"></ul>
-  <button id="updateBtn" type="button">Update now</button>
-</div>
-
 <main>
   <nav class="menu" id="menu" aria-label="Sound categories"></nav>
-  <footer id="ver"></footer>
 </main>
 
 <div class="modal" id="modal" hidden>
@@ -379,7 +353,7 @@ footer { text-align: center; font-size: 3rem; color: var(--muted); padding: 1rem
     { id: 'pressure', label: 'High Pressure', parts: false }
   ];
 
-  var CACHE = 'dgs-cache';
+  var CACHE = 'st-cache';
   var SHELL = ['./', 'index.html', 'sounds.js', 'background.jpg', 'concrete.jpg', 'logo.jpg', 'luckiest-guy.woff2', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png'];
   var FLIGHT_MS = 600;
 
@@ -592,7 +566,7 @@ footer { text-align: center; font-size: 3rem; color: var(--muted); padding: 1rem
   modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
 
-  /* ---------- Offline cache + update check ---------- */
+  /* ---------- Offline cache ---------- */
   function allFiles() {
     var files = SHELL.slice();
     var S = window.SOUNDS || {};
@@ -619,42 +593,9 @@ footer { text-align: center; font-size: 3rem; color: var(--muted); padding: 1rem
     });
   }
 
-  function getInstalled() { try { return localStorage.getItem('dgs-version'); } catch (e) { return null; } }
-  function setInstalled(v) { try { localStorage.setItem('dgs-version', v); } catch (e) {} }
-
-  function showVersion(v) { $('ver').textContent = 'Version ' + v; }
-
-  function checkUpdate() {
-    fetch('version.json', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (remote) {
-      var installed = getInstalled();
-      if (!installed) {
-        precache().then(function () { setInstalled(remote.version); showVersion(remote.version); });
-        return;
-      }
-      showVersion(installed);
-      if (installed !== remote.version) {
-        $('updateTitle').textContent = 'Update available: version ' + remote.version;
-        var ul = $('updateList');
-        ul.textContent = '';
-        (remote.changes || []).forEach(function (c) { ul.appendChild(el('li', null, c)); });
-        $('update').classList.add('show');
-        $('updateBtn').onclick = function () {
-          var b = $('updateBtn');
-          b.disabled = true; b.textContent = 'Updating...';
-          precache().then(function () { setInstalled(remote.version); location.reload(); });
-        };
-      } else {
-        precache(true); // quietly fetch any newly added clips
-      }
-    }).catch(function () {
-      var v = getInstalled();
-      if (v) showVersion(v);
-    });
-  }
-
   buildMenu();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
-  checkUpdate();
+  precache(true);
 })();
 </script>
 </body>
