@@ -1,6 +1,6 @@
 {
-  "name": "Screamin' Tees Soundboard",
-  "short_name": "Screamin' Tees",
+  "name": "Screamin' Chainz Soundboard",
+  "short_name": "Screamin' Chainz",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
