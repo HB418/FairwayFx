@@ -5,7 +5,17 @@ window.SOUNDS = {
     negative: []
   },
   teeshots: {
-    positive: [],
+    positive: [
+      { name: "Bullseye", file: "Good Throws/Bullseye.wav" },
+      { name: "Cash Register", file: "Good Throws/Cash Register.wav" },
+      { name: "Crowd Cheer", file: "Good Throws/Crowd Cheer.wav" },
+      { name: "Danger Zone", file: "Good Throws/Danger Zone.wav" },
+      { name: "Fly Like an Eagle", file: "Good Throws/Fly Like an Eagle.wav" },
+      { name: "Golf Clap", file: "Good Throws/Golf Clap.wav" },
+      { name: "Ground Control to Major Tom", file: "Good Throws/Ground Control to Major Tom.wav" },
+      { name: "Oh Yeah", file: "Good Throws/Oh Yeah.wav" },
+      { name: "Rocket Man", file: "Good Throws/Rocket Man.wav" }
+    ],
     negative: [
       { name: "Bike Horn", file: "Bad Throws/Bike Horn.wav" },
       { name: "Bowling Strike", file: "Bad Throws/Bowling Strike.wav" },
@@ -24,6 +34,7 @@ window.SOUNDS = {
       { name: "The Price Is Right Loser", file: "Bad Throws/Price is Right Loser.wav" },
       { name: "Ricochet", file: "Bad Throws/Ricochet.wav" },
       { name: "Sad Trombone", file: "Bad Throws/Sad Trumbone.wav" },
+      { name: "Timber (Pitbull & Ke$ha)", file: "Bad Throws/Timber - PitBull Ke$ha.wav" },
       { name: "Water Splash", file: "Bad Throws/Water Splash.wav" },
       { name: "Windows Shutdown", file: "Bad Throws/Windows Shutdown.wav" },
       { name: "Woody Woodpecker Laugh", file: "Bad Throws/WoodPecker.wav" },
